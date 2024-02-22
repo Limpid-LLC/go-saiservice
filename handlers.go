@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Handler map[string]HandlerElement
@@ -172,6 +173,20 @@ func (s *Service) versionCheck(resp http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Service) handleHttpConnections(resp http.ResponseWriter, req *http.Request) {
+	rc := http.NewResponseController(resp)
+
+	err := rc.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = rc.SetReadDeadline(time.Now().Add(5 * time.Second))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	var message JsonRequestType
 	decoder := json.NewDecoder(req.Body)
 	decoderErr := decoder.Decode(&message)
