@@ -175,14 +175,14 @@ func (s *Service) versionCheck(resp http.ResponseWriter, req *http.Request) {
 func (s *Service) handleHttpConnections(resp http.ResponseWriter, req *http.Request) {
 	rc := http.NewResponseController(resp)
 
-	writeTimeOut := s.GetConfig("common.http.write_timeout", 5).(int64)
+	writeTimeOut := s.GetConfig("common.http.write_timeout", 5).(int)
 	err := rc.SetWriteDeadline(time.Now().Add(time.Duration(writeTimeOut) * time.Second))
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	readTimeOut := s.GetConfig("common.http.read_timeout", 5).(int64)
+	readTimeOut := s.GetConfig("common.http.read_timeout", 5).(int)
 	err = rc.SetReadDeadline(time.Now().Add(time.Duration(readTimeOut) * time.Second))
 	if err != nil {
 		log.Println(err)
