@@ -198,8 +198,6 @@ func (s *Service) handleHttpConnections(resp http.ResponseWriter, req *http.Requ
 
 	message.Metadata["ip"] = s.getHttpIP(req)
 
-	resp.Header().Set("Content-Type", "application/json")
-
 	if decoderErr != nil {
 		err := ErrorResponse{"Status": "NOK", "Error": decoderErr.Error()}
 		errBody, _ := json.Marshal(err)
@@ -231,6 +229,13 @@ func (s *Service) handleHttpConnections(resp http.ResponseWriter, req *http.Requ
 	}
 
 	result, statusCode, resultErr := s.processPath(&message)
+
+	if statusCode == 210 {
+		resp.Header().Set("Content-Type", "application/octet-stream")
+		statusCode = 200
+	} else {
+		resp.Header().Set("Content-Type", "application/json")
+	}
 
 	if resultErr != nil {
 		err := ErrorResponse{"Status": "NOK", "Error": resultErr.Error()}
