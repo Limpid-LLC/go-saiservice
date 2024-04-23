@@ -232,6 +232,7 @@ func (s *Service) handleHttpConnections(resp http.ResponseWriter, req *http.Requ
 
 	if statusCode == 210 {
 		resp.Header().Set("Content-Type", "application/octet-stream")
+		resp.Header().Set("Content-Disposition", "attachment; filename="+resultErr.Error())
 		statusCode = 200
 	} else {
 		resp.Header().Set("Content-Type", "application/json")
