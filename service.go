@@ -62,7 +62,7 @@ func (s *Service) RegisterInitTask(initTask func()) {
 	s.InitTask = initTask
 }
 
-func (s *Service) GetConfig(path string, def interface{}) interface{} {
+func (s *Service) GetConfig(path string, def any) any {
 	return s.Context.GetConfig(path, def)
 }
 
