@@ -18,35 +18,35 @@ type Request struct {
 }
 
 type RequestData struct {
-	Microservice string      `json:"microservice"`
-	Method       string      `json:"method"`
-	Metadata     interface{} `json:"metadata"`
-	Data         interface{} `json:"data"`
+	Microservice string `json:"microservice"`
+	Method       string `json:"method"`
+	Metadata     any    `json:"metadata"`
+	Data         any    `json:"data"`
 }
 
-func CreateAuthMiddleware(authServiceURL string, microserviceName string, method string) func(next saiService.HandlerFunc, data interface{}, metadata interface{}) (interface{}, int, error) {
-	return func(next saiService.HandlerFunc, data interface{}, metadata interface{}) (interface{}, int, error) {
+func CreateAuthMiddleware(authServiceURL string, microserviceName string, method string) func(next saiService.HandlerFunc, bodyData any, bodyMetadata any, requestGETData any) (any, int, error) {
+	return func(next saiService.HandlerFunc, bodyData any, bodyMetadata any, requestGETData any) (any, int, error) {
 		if authServiceURL == "" {
 			log.Println("authMiddleware: auth service url is empty")
 			return unauthorizedResponse("authServiceURL")
 		}
 
-		var dataMap map[string]interface{}
+		var dataMap map[string]any
 
-		dataBytes, _ := json.Marshal(data)
+		dataBytes, _ := json.Marshal(bodyData)
 
 		_ = json.Unmarshal(dataBytes, &dataMap)
 
-		if metadata == nil {
-			log.Println("authMiddleware: metadata is nil")
-			return unauthorizedResponse("empty metadata")
+		if bodyMetadata == nil {
+			log.Println("authMiddleware: bodyMetadata is nil")
+			return unauthorizedResponse("empty bodyMetadata")
 		}
 
-		metadataMap := metadata.(map[string]interface{})
+		metadataMap := bodyMetadata.(map[string]any)
 
 		if metadataMap["token"] == nil {
-			log.Println("authMiddleware: metadata token is nil")
-			return unauthorizedResponse("empty metadata token")
+			log.Println("authMiddleware: bodyMetadata token is nil")
+			return unauthorizedResponse("empty bodyMetadata token")
 		}
 
 		dataMap["token"] = metadataMap["token"]
@@ -62,7 +62,7 @@ func CreateAuthMiddleware(authServiceURL string, microserviceName string, method
 
 		jsonData, err := json.Marshal(authReq)
 		if err != nil {
-			log.Println("authMiddleware: error marshaling data")
+			log.Println("authMiddleware: error marshaling bodyData")
 			log.Println("authMiddleware: " + err.Error())
 			return unauthorizedResponse("marshaling -> " + err.Error())
 		}
@@ -105,10 +105,10 @@ func CreateAuthMiddleware(authServiceURL string, microserviceName string, method
 			return unauthorizedResponse("Result -> " + string(body))
 		}
 
-		return next(data, metadata)
+		return next(bodyData, bodyMetadata, requestGETData)
 	}
 }
 
-func unauthorizedResponse(info string) (interface{}, int, error) {
+func unauthorizedResponse(info string) (any, int, error) {
 	return nil, http.StatusUnauthorized, errors.New("unauthorized:" + info)
 }
