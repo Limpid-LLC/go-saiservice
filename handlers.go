@@ -27,10 +27,10 @@ type HandlerElement struct {
 type HandlerFunc = func(any, any, any) (any, int, error)
 
 type JsonRequestType struct {
-	Method         string
-	BodyMetadata   map[string]any
-	BodyData       any
-	RequestGETData any
+	Method         string         `json:"method"`
+	BodyMetadata   map[string]any `json:"metadata"`
+	BodyData       any            `json:"data"`
+	RequestGETData any            `json:"-"`
 }
 
 type ErrorResponse map[string]any
